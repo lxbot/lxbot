@@ -11,6 +11,17 @@ func main() {
 	replySymbol, _ := adapter.Lookup("Reply")
 	replyFn := replySymbol.(func(M))
 
+	send := func(m M) {
+		switch m["mode"].(string) {
+		case "send":
+			sendFn(m)
+			break
+		case "reply":
+			replyFn(m)
+			break
+		}
+	}
+
 	for {
 		select {
 		case m := <- *aCh:
@@ -20,28 +31,14 @@ func main() {
 					for _, f := range fs {
 						r := f(m)
 						if r != nil {
-							switch r["mode"].(string) {
-							case "send":
-								sendFn(r)
-								break
-							case "reply":
-								replyFn(r)
-								break
-							}
+							send(r)
 						}
 					}
 				}
 			}
 			break
 		case m := <- *sCh:
-			switch m["mode"].(string) {
-			case "send":
-				sendFn(m)
-				break
-			case "reply":
-				replyFn(m)
-				break
-			}
+			send(m)
 		}
 	}
 }
