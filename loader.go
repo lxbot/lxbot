@@ -60,11 +60,11 @@ func loadAdapters() (*plugin.Plugin, *chan map[string]interface{}) {
 	return p, &ch
 }
 
-func loadScripts() ([]*plugin.Plugin, *chan map[string]interface{}){
+func loadScripts(store *plugin.Plugin) ([]*plugin.Plugin, *chan map[string]interface{}){
 	ch := make(chan map[string]interface{})
 	files := lookup("./scripts")
 	if len(files) == 0 {
-		panic("adapter not found")
+		panic("script not found")
 	}
 	plugins := make([]*plugin.Plugin, 0)
 	for _, file := range files {
@@ -73,11 +73,32 @@ func loadScripts() ([]*plugin.Plugin, *chan map[string]interface{}){
 			if _, err := p.Lookup("OnMessage"); err == nil {
 				plugins = append(plugins, p)
 				if fn, err := p.Lookup("Boot"); err == nil {
-					fn.(func(*chan map[string]interface{}))(&ch)
+					fn.(func(*plugin.Plugin, *chan map[string]interface{}))(store, &ch)
 				}
-
 			}
 		}
 	}
 	return plugins, &ch
+}
+
+func loadStores() (*plugin.Plugin, *chan map[string]interface{}){
+	ch := make(chan map[string]interface{})
+	files := lookup("./stores")
+	if len(files) == 0 {
+		panic("store not found")
+	}
+	file := files[0]
+	p, err := plugin.Open(file)
+	if err == nil {
+		if _, err := p.Lookup("Set"); err != nil {
+			panic(err)
+		}
+		if _, err := p.Lookup("Get"); err != nil {
+			panic(err)
+		}
+		if fn, err := p.Lookup("Boot"); err == nil {
+			fn.(func(*chan map[string]interface{}))(&ch)
+		}
+	}
+	return p, &ch
 }

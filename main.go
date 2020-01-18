@@ -4,7 +4,8 @@ type M = map[string]interface{}
 
 func main() {
 	adapter, aCh := loadAdapters()
-	scripts, sCh := loadScripts()
+	store, _ := loadStores()
+	scripts, sCh := loadScripts(store)
 
 	sendSymbol, _ := adapter.Lookup("Send")
 	sendFn := sendSymbol.(func(M))
