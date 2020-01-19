@@ -26,7 +26,12 @@ func lookup(relativePath string) []string {
 	r := make([]string, 0, 0)
 	for _, f := range files {
 		n := f.Name()
-		if !f.IsDir() && strings.HasSuffix(n, ".so") {
+		if f.IsDir() {
+			n := path.Join(relativePath, f.Name())
+			s := lookup(n)
+			r = append(r, s...)
+		}
+		if strings.HasSuffix(n, ".so") {
 			p := path.Join(t, n)
 			r = append(r, p)
 		}
