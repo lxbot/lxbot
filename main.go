@@ -10,7 +10,7 @@ func main() {
 	adapter, aCh := loadAdapters()
 	store, _ := loadStores()
 	scripts, sCh := loadScripts(store)
-	beforeScriptsPlugins, afterScriptPlugins, pCh := loadPlugins(store)
+	beforeScriptsPlugins, afterScriptPlugins, pCh := loadPlugins(store, scripts)
 
 	sendSymbol, _ := adapter.Lookup("Send")
 	sendFn := sendSymbol.(func(M))

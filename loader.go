@@ -96,7 +96,7 @@ func loadStores() (*plugin.Plugin, *chan map[string]interface{}){
 	return p, &ch
 }
 
-func loadPlugins(store *plugin.Plugin) ([]*plugin.Plugin, []*plugin.Plugin, *chan map[string]interface{}){
+func loadPlugins(store *plugin.Plugin, scripts []*plugin.Plugin) ([]*plugin.Plugin, []*plugin.Plugin, *chan map[string]interface{}){
 	log.Println("search plugins")
 
 	ch := make(chan map[string]interface{})
@@ -123,7 +123,7 @@ func loadPlugins(store *plugin.Plugin) ([]*plugin.Plugin, []*plugin.Plugin, *cha
 			}
 			if fn, err := p.Lookup("Boot"); err == nil && ok {
 				log.Println("boot:", file)
-				fn.(func(*plugin.Plugin, *chan map[string]interface{}))(store, &ch)
+				fn.(func(*plugin.Plugin, []*plugin.Plugin, *chan map[string]interface{}))(store, scripts, &ch)
 			}
 		}
 	}
