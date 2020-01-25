@@ -41,10 +41,6 @@ func lookup(relativePath string) []string {
 	return r
 }
 
-func loadPlugins() {
-	// TODO:
-}
-
 func loadAdapters() (*plugin.Plugin, *chan map[string]interface{}) {
 	log.Println("search adapters")
 
@@ -100,15 +96,50 @@ func loadStores() (*plugin.Plugin, *chan map[string]interface{}){
 	return p, &ch
 }
 
+func loadPlugins(store *plugin.Plugin) ([]*plugin.Plugin, []*plugin.Plugin, *chan map[string]interface{}){
+	log.Println("search plugins")
+
+	ch := make(chan map[string]interface{})
+	files := lookup("./plugins")
+	beforeScriptsPlugins := make([]*plugin.Plugin, 0)
+	afterScriptPlugins := make([]*plugin.Plugin, 0)
+
+	if len(files) == 0 {
+		log.Println("plugins not found")
+	}
+	for _, file := range files {
+		log.Println("load:", file)
+
+		p, err := plugin.Open(file)
+		if err == nil {
+			ok := false
+			if _, err := p.Lookup("BeforeScripts"); err == nil {
+				ok = true
+				beforeScriptsPlugins = append(beforeScriptsPlugins, p)
+			}
+			if _, err := p.Lookup("AfterScript"); err == nil {
+				ok = true
+				afterScriptPlugins = append(afterScriptPlugins, p)
+			}
+			if fn, err := p.Lookup("Boot"); err == nil && ok {
+				log.Println("boot:", file)
+				fn.(func(*plugin.Plugin, *chan map[string]interface{}))(store, &ch)
+			}
+		}
+	}
+	return beforeScriptsPlugins, afterScriptPlugins, &ch
+}
+
 func loadScripts(store *plugin.Plugin) ([]*plugin.Plugin, *chan map[string]interface{}){
 	log.Println("search scripts")
 
 	ch := make(chan map[string]interface{})
 	files := lookup("./scripts")
-	if len(files) == 0 {
-		panic("script not found")
-	}
 	plugins := make([]*plugin.Plugin, 0)
+
+	if len(files) == 0 {
+		log.Println("script not found")
+	}
 	for _, file := range files {
 		log.Println("load:", file)
 
