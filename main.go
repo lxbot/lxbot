@@ -1,5 +1,9 @@
 package main
 
+import (
+	"log"
+)
+
 type M = map[string]interface{}
 
 func main() {
@@ -23,6 +27,8 @@ func main() {
 		}
 	}
 
+	log.Println("lxbot start")
+
 	for {
 		select {
 		case m := <- *aCh:
@@ -30,10 +36,12 @@ func main() {
 				if fn, err := s.Lookup("OnMessage"); err == nil {
 					fs := fn.(func() []func(M) M)()
 					for _, f := range fs {
-						r := f(m)
-						if r != nil {
-							send(r)
-						}
+						go func() {
+							r := f(m)
+							if r != nil {
+								send(r)
+							}
+						}()
 					}
 				}
 			}
