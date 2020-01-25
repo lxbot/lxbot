@@ -45,12 +45,12 @@ func main() {
 				if fn, err := s.Lookup("OnMessage"); err == nil {
 					fs := fn.(func() []func(M) M)()
 					for _, f := range fs {
-						go func() {
+						go func(gf func(M) M) {
 							cm, err := deepCopy(m)
 							if err != nil {
 								log.Fatalln(err)
 							}
-							r := f(cm)
+							r := gf(cm)
 							if r != nil {
 								for _, p := range afterScriptPlugins {
 									if pfn, err := p.Lookup("AfterScript"); err == nil {
@@ -60,18 +60,18 @@ func main() {
 										}
 									}
 								}
-								send(r)
+								go send(r)
 							}
-						}()
+						}(f)
 					}
 				}
 			}
 			break
 		case m := <- *sCh:
-			send(m)
+			go send(m)
 			break
 		case m := <- *pCh:
-			send(m)
+			go send(m)
 		}
 	}
 }
