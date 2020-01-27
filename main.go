@@ -7,6 +7,8 @@ import (
 type M = map[string]interface{}
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lmicroseconds | log.Llongfile)
+
 	adapter, aCh := loadAdapters()
 	store, _ := loadStores()
 	scripts, sCh := loadScripts(store)
