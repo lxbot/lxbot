@@ -3,7 +3,7 @@ FROM golang:1.13.6-alpine3.11 as builder
 ARG GOLANG_NAMESPACE="github.com/lxbot/lxbot"
 ENV GOLANG_NAMESPACE="$GOLANG_NAMESPACE"
 
-RUN apk --no-cache add alpine-sdk coreutils make tzdata
+RUN apk --no-cache add alpine-sdk coreutils make tzdata docker
 RUN cp -f /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 WORKDIR /go/src/$GOLANG_NAMESPACE
 ADD ./go.* /go/src/$GOLANG_NAMESPACE/
