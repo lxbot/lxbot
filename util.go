@@ -7,6 +7,7 @@ import (
 
 func deepCopy(msg M) (M, error) {
 	gob.Register(M{})
+	gob.Register([]M{})
 	gob.Register([]interface{}{})
 
 	var b bytes.Buffer
