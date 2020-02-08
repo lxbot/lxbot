@@ -151,11 +151,13 @@ func loadScripts(store *plugin.Plugin) ([]*plugin.Plugin, *chan map[string]inter
 					log.Println("boot:", file)
 					fn.(func(*plugin.Plugin, *chan map[string]interface{}))(store, &ch)
 				} else {
-					log.Println("boot ignored:", file)
+					log.Println("boot error:", file, err)
 				}
 			} else {
-				log.Println("load ignored:", file)
+				log.Println("load error:", file, err)
 			}
+		} else {
+			log.Println("open error:", file, err)
 		}
 	}
 	return plugins, &ch
