@@ -133,7 +133,7 @@ func loadPlugins(store *plugin.Plugin, scripts []*plugin.Plugin) ([]*plugin.Plug
 func loadScripts(store *plugin.Plugin) ([]*plugin.Plugin, *chan map[string]interface{}){
 	log.Println("search scripts")
 
-	ch := make(chan map[string]interface{})
+	ch := make(chan map[string]interface{}, 1)
 	files := lookup("./scripts")
 	plugins := make([]*plugin.Plugin, 0)
 
@@ -150,7 +150,11 @@ func loadScripts(store *plugin.Plugin) ([]*plugin.Plugin, *chan map[string]inter
 				if fn, err := p.Lookup("Boot"); err == nil {
 					log.Println("boot:", file)
 					fn.(func(*plugin.Plugin, *chan map[string]interface{}))(store, &ch)
+				} else {
+					log.Println("boot ignored:", file)
 				}
+			} else {
+				log.Println("load ignored:", file)
 			}
 		}
 	}
