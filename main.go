@@ -22,11 +22,9 @@ func main() {
 	send := func(m M) {
 		switch m["mode"].(string) {
 		case "send":
-			log.Println("send:", m["message"].(M)["text"])
 			sendFn(m)
 			break
 		case "reply":
-			log.Println("send:", m["message"].(M)["text"])
 			replyFn(m)
 			break
 		}
