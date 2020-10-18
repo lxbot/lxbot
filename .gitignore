@@ -113,6 +113,8 @@ modules.xml
 
 adapters
 scripts
+plugins
+stores
 !.gitkeep
 lxbot
 .env
