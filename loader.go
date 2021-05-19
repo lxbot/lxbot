@@ -64,12 +64,14 @@ func loadAdapters() (*plugin.Plugin, *chan map[string]interface{}) {
 			log.Println("boot:", file)
 			fn.(func(*chan map[string]interface{}))(&ch)
 		}
+	} else {
+		log.Println("open error:", file, err)
 	}
 
 	return p, &ch
 }
 
-func loadStores() (*plugin.Plugin, *chan map[string]interface{}){
+func loadStores() (*plugin.Plugin, *chan map[string]interface{}) {
 	log.Println("search stores")
 
 	ch := make(chan map[string]interface{})
@@ -92,11 +94,13 @@ func loadStores() (*plugin.Plugin, *chan map[string]interface{}){
 			log.Println("boot:", file)
 			fn.(func(*chan map[string]interface{}))(&ch)
 		}
+	} else {
+		log.Println("open error:", file, err)
 	}
 	return p, &ch
 }
 
-func loadPlugins(store *plugin.Plugin, scripts []*plugin.Plugin) ([]*plugin.Plugin, []*plugin.Plugin, *chan map[string]interface{}){
+func loadPlugins(store *plugin.Plugin, scripts []*plugin.Plugin) ([]*plugin.Plugin, []*plugin.Plugin, *chan map[string]interface{}) {
 	log.Println("search plugins")
 
 	ch := make(chan map[string]interface{})
@@ -125,12 +129,14 @@ func loadPlugins(store *plugin.Plugin, scripts []*plugin.Plugin) ([]*plugin.Plug
 				log.Println("boot:", file)
 				fn.(func(*plugin.Plugin, []*plugin.Plugin, *chan map[string]interface{}))(store, scripts, &ch)
 			}
+		} else {
+			log.Println("open error:", file, err)
 		}
 	}
 	return beforeScriptsPlugins, afterScriptPlugins, &ch
 }
 
-func loadScripts(store *plugin.Plugin) ([]*plugin.Plugin, *chan map[string]interface{}){
+func loadScripts(store *plugin.Plugin) ([]*plugin.Plugin, *chan map[string]interface{}) {
 	log.Println("search scripts")
 
 	ch := make(chan map[string]interface{}, 1)
