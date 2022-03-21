@@ -1,0 +1,6 @@
+github.com/lxbot/lxlib/v2 v2.0.0-beta.2 h1:X8y5TzBiPdvXg0QhLinCvv+SY+nrjAPnvF5DSTo08cc=
+github.com/lxbot/lxlib/v2 v2.0.0-beta.2/go.mod h1:otQkZ+zWIdaJUuYk3QSgONBkDP3ur1IGbChtIhONO9w=
+github.com/lxbot/lxlib/v2 v2.0.0-beta.3 h1:Xq//EscB/tvepzh86AcAj4pE+/qrqiHfIHMuRW4JObs=
+github.com/lxbot/lxlib/v2 v2.0.0-beta.3/go.mod h1:otQkZ+zWIdaJUuYk3QSgONBkDP3ur1IGbChtIhONO9w=
+github.com/rs/xid v1.3.0 h1:6NjYksEUlhurdVehpc7S7dk6DAmcKv8V9gG0FsVN2U4=
+github.com/rs/xid v1.3.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
