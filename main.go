@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/lxbot/lxlib/v2/common"
 	"github.com/lxbot/lxlib/v2/lxtypes"
 )
 
@@ -76,6 +77,7 @@ func main() {
 						break
 					}
 				}
+				common.WarnLog("missing storage map key:", msg.ID)
 			case ExitEvent:
 				return
 			}

@@ -2,5 +2,11 @@ github.com/lxbot/lxlib/v2 v2.0.0-beta.2 h1:X8y5TzBiPdvXg0QhLinCvv+SY+nrjAPnvF5DS
 github.com/lxbot/lxlib/v2 v2.0.0-beta.2/go.mod h1:otQkZ+zWIdaJUuYk3QSgONBkDP3ur1IGbChtIhONO9w=
 github.com/lxbot/lxlib/v2 v2.0.0-beta.3 h1:Xq//EscB/tvepzh86AcAj4pE+/qrqiHfIHMuRW4JObs=
 github.com/lxbot/lxlib/v2 v2.0.0-beta.3/go.mod h1:otQkZ+zWIdaJUuYk3QSgONBkDP3ur1IGbChtIhONO9w=
+github.com/lxbot/lxlib/v2 v2.0.0-beta.8 h1:r6I8YgdfoXa0lbmf2oorxtyycYTJW7QpL597rYRfsts=
+github.com/lxbot/lxlib/v2 v2.0.0-beta.8/go.mod h1:otQkZ+zWIdaJUuYk3QSgONBkDP3ur1IGbChtIhONO9w=
+github.com/mitchellh/mapstructure v1.4.3 h1:OVowDSCllw/YjdLkam3/sm7wEtOy59d8ndGgCcyj8cs=
+github.com/mitchellh/mapstructure v1.4.3/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
 github.com/rs/xid v1.3.0 h1:6NjYksEUlhurdVehpc7S7dk6DAmcKv8V9gG0FsVN2U4=
 github.com/rs/xid v1.3.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
+github.com/rs/xid v1.4.0 h1:qd7wPTDkN6KQx2VmMBLrpHkiyQwgFXRnkOLacUiaSNY=
+github.com/rs/xid v1.4.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
