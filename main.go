@@ -2,78 +2,91 @@ package main
 
 import (
 	"log"
-)
+	"os"
+	"os/signal"
+	"syscall"
 
-type M = map[string]interface{}
+	"github.com/lxbot/lxlib/v2/common"
+	"github.com/lxbot/lxlib/v2/lxtypes"
+)
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds | log.Llongfile)
 
-	adapter, aCh := loadAdapters()
-	store, _ := loadStores()
-	scripts, sCh := loadScripts(store)
-	beforeScriptsPlugins, afterScriptPlugins, pCh := loadPlugins(store, scripts)
-
-	sendSymbol, _ := adapter.Lookup("Send")
-	sendFn := sendSymbol.(func(M))
-	replySymbol, _ := adapter.Lookup("Reply")
-	replyFn := replySymbol.(func(M))
-
-	send := func(m M) {
-		switch m["mode"].(string) {
-		case "send":
-			sendFn(m)
-			break
-		case "reply":
-			replyFn(m)
-			break
-		}
-	}
+	adapter := loadAdapter()
+	store := loadStore()
+	scripts, unifiedScriptCh := loadScripts()
 
 	log.Println("lxbot start")
 
+	getStorageMap := map[string]string{}
+
+	dispose := func() {
+		adapter.Dispose()
+		store.Dispose()
+		for _, script := range scripts {
+			script.Dispose()
+		}
+	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+	defer func() {
+		signal.Stop(c)
+		dispose()
+	}()
+	go func() {
+		for range c {
+			close(c)
+			dispose()
+			os.Exit(125)
+		}
+	}()
+
 	for {
 		select {
-		case m := <- *aCh:
-			for _, p := range beforeScriptsPlugins {
-				if fn, err := p.Lookup("BeforeScripts"); err == nil {
-					fs := fn.(func() []func(M) M)()
-					for _, f := range fs {
-						m = f(m)
+		case msg := <-*adapter.MessageCh:
+			common.TraceLog("lxbot", "adapter", "event received", "type:", msg.EventType)
+			switch msg.EventType {
+			case lxtypes.IncomingMessageEvent:
+				for _, s := range scripts {
+					s.Write(msg.Body)
+				}
+			case ExitEvent:
+				log.Println("adapter exit")
+				return
+			}
+		case msg := <-*unifiedScriptCh:
+			common.TraceLog("lxbot", "script", "event received", "type:", msg.EventType)
+			switch msg.EventType {
+			case lxtypes.OutgoingMessageEvent:
+				adapter.Write(msg.Body)
+			case lxtypes.GetStorageEvent:
+				getStorageMap[msg.ID] = msg.Origin
+				store.Write(msg.Body)
+			case lxtypes.SetStorageEvent:
+				store.Write(msg.Body)
+			case ExitEvent:
+				log.Println("script exit")
+				return
+			}
+		case msg := <-*store.MessageCh:
+			common.TraceLog("lxbot", "store", "event received", "type:", msg.EventType)
+			switch msg.EventType {
+			case lxtypes.GetStorageEvent:
+				origin := getStorageMap[msg.ID]
+				for _, script := range scripts {
+					if script.Origin() == origin {
+						delete(getStorageMap, msg.ID)
+						script.Write(msg.Body)
+						break
 					}
 				}
+				common.WarnLog("missing storage map key:", msg.ID)
+			case ExitEvent:
+				log.Println("store exit")
+				return
 			}
-			for _, s := range scripts {
-				if fn, err := s.Lookup("OnMessage"); err == nil {
-					fs := fn.(func() []func(M) M)()
-					for _, f := range fs {
-						go func(gf func(M) M) {
-							cm, err := deepCopy(m)
-							if err != nil {
-								log.Fatalln(err)
-							}
-							r := gf(cm)
-							if r != nil {
-								for _, p := range afterScriptPlugins {
-									if pfn, err := p.Lookup("AfterScript"); err == nil {
-										pfs := pfn.(func() []func(M) M)()
-										for _, pf := range pfs {
-											r = pf(r)
-										}
-									}
-								}
-								go send(r)
-							}
-						}(f)
-					}
-				}
-			}
-			break
-		case m := <- *sCh:
-			go send(m)
-			break
-		case m := <- *pCh:
-			go send(m)
 		}
 	}
 }
