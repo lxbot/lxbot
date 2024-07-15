@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/lxbot/lxlib/v2/common"
 	"github.com/lxbot/lxlib/v2/lxtypes"
 )
 
@@ -35,7 +36,7 @@ func main() {
 		dispose()
 	}()
 	go func() {
-		for _ = range c {
+		for range c {
 			close(c)
 			dispose()
 			os.Exit(125)
@@ -45,15 +46,18 @@ func main() {
 	for {
 		select {
 		case msg := <-*adapter.MessageCh:
+			common.TraceLog("lxbot", "adapter", "event received", "type:", msg.EventType)
 			switch msg.EventType {
 			case lxtypes.IncomingMessageEvent:
 				for _, s := range scripts {
 					s.Write(msg.Body)
 				}
 			case ExitEvent:
+				log.Println("adapter exit")
 				return
 			}
 		case msg := <-*unifiedScriptCh:
+			common.TraceLog("lxbot", "script", "event received", "type:", msg.EventType)
 			switch msg.EventType {
 			case lxtypes.OutgoingMessageEvent:
 				adapter.Write(msg.Body)
@@ -63,9 +67,11 @@ func main() {
 			case lxtypes.SetStorageEvent:
 				store.Write(msg.Body)
 			case ExitEvent:
+				log.Println("script exit")
 				return
 			}
 		case msg := <-*store.MessageCh:
+			common.TraceLog("lxbot", "store", "event received", "type:", msg.EventType)
 			switch msg.EventType {
 			case lxtypes.GetStorageEvent:
 				origin := getStorageMap[msg.ID]
@@ -76,7 +82,9 @@ func main() {
 						break
 					}
 				}
+				common.WarnLog("missing storage map key:", msg.ID)
 			case ExitEvent:
+				log.Println("store exit")
 				return
 			}
 		}
