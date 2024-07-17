@@ -29,8 +29,7 @@ func lookup(relativePath string) []string {
 			n := path.Join(relativePath, f.Name())
 			s := lookup(n)
 			r = append(r, s...)
-		}
-		if f.Mode()&0100 != 0 {
+		} else if f.Mode()&0100 != 0 {
 			p := path.Join(t, n)
 			r = append(r, p)
 			log.Println("found:", p)
